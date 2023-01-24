@@ -1,0 +1,187 @@
+﻿
+@{
+    ViewBag.Title = "Usuarios";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Usuarios</h2>
+<ol class="breadcrumb mb-4 mt-4">
+    <li class="breadcrumb-item"><a href="index.html">Resumen</a></li>
+    <li class="breadcrumb-item active">Usuario</li>
+</ol>
+
+
+
+<div class="card">
+    <div class="card-header">
+        <i class="fas fa-users me-1"></i> Lista de Usuarios
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-12">
+                <button type="button" class="btn btn-success" onclick="abrirModal()">Crear Nuevo</button>
+            </div>
+        </div>
+        <hr/>
+        <table id="tabla" class="display cell-border" style="width:100%">
+            <thead>
+                <th>Nombres</th>
+                <th>Apellidos</th>
+                <th>Correo</th>
+                <th>Estado</th>
+                <th></th>
+
+            </th>
+            <tbody>
+                
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title" id="exampleModalLabel">Usuario</h5>
+                <button type="button" class="close bg-dark" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input id="txtId" type="hidden" value="0"/>
+                <div class="row">
+
+                    <div class="col-sm-6">
+                        <label for="txtNombres">Nombres</label>
+                        <input type="text" class="form-control" id="txtNombres">
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="txtApellidos">Apellidos</label>
+                        <input type="text" class="form-control" id="txtApellidos">
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="txtCorreo">Correo</label>
+                        <input type="email" class="form-control" id="txtCorreo" placeholder="name@example.com">
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="cboEstado">Estado</label>
+                        <select class="form-select" id="cboEstado" aria-label="Default select example">
+                            <option value="1" selected>Activo</option>
+                            <option value="0">Inactivo</option>
+                        </select>
+                    </div>
+
+
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" onclick="Guardar()">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        //Tabla data contiene toda la informacion
+        var tabladata;
+        var filaSeleccionada;
+        jQuery.ajax({
+            url: '@Url.Action("ListarUsuarios", "Home")',
+            type: "GET",
+            dataType: "json",
+            contentType: "application/json; charset=UTF-8",
+            success: function (data) {
+                var text1 = "Aca esta el texto 1"
+                console.log(data)
+            }
+        })
+
+        tabladata = $("#tabla").DataTable({
+            responsive: true,
+            ordering: false,
+            //Como va a pintar los datos ajax
+            "ajax": {
+                url: '@Url.Action("ListarUsuarios", "Home")',
+            type: "GET",
+            dataType: "json"
+            },
+            "columns": [
+            //De "data" origen extraes el Nombre
+                { "data": "Nombres" },
+                { "data": "Apellidos" },
+                { "data": "Correo" },
+                {
+                    "data": "Activo", "render": function (valor) {
+                        if (valor) {
+                            return "<span class='badge bg-success'>Activo</span>";
+                        } else {
+                            return "<span class='badge bg-danger'>Inactivo</span>";
+                        }
+                    }
+                },
+                {
+                    "defaultContent": '<button type="button" class="btn btn-primary btn-sm btn-edit"><i class="fas fa-pen"></i></button>' +
+                        '<button type="button" class="btn btn-danger btn-sm ms-2"><i class="fas fa-trash"></i></button>',
+                    "orderable": false, //No se quiere que esta columna sea ordenada de mayor a menor ni de menor a mayor
+                    "searchable": false, //No se quiere que se busque por esta columna
+                    "width": "90px"
+                }
+            ],
+            "language": { //Para cambiar de ingles a español
+                "url": "https://cdn.datatables.net/plug-ins/1.13.1/i18n/es-ES.json"
+                }
+
+        });
+        function abrirModal(json) {
+            $("#txtId").val(0);
+            $("#txtNombres").val("");
+            $("#txtApellidos").val("");
+            $("#txtCorreo").val("");
+            $("#cboEstado").val("1");
+            if (json != null) {
+                $("#txtId").val(json.IdUsuario);
+                $("#txtNombres").val(json.Nombres);
+                $("#txtApellidos").val(json.Apellidos);
+                $("#txtCorreo").val(json.Correo);
+                $("#cboEstado").val(json.Activo ? "1" : "0");
+            }
+            $("#exampleModal").modal("show");
+        }
+        //Cada ves que haga un click en el boton btn-editar que esta en el tbody y que esta en la #tabla, vas a hacer esto
+        $("#tabla tbody").on("click", ".btn-edit", function myfunction() {
+            //this es para obtener la parte inicial del componente
+            filaSeleccionada = $(this).closest("tr")
+            console.log("tabla 3", tabladata.row(filaSeleccionada).data());
+            var data = tabladata.row(filaSeleccionada).data();
+            abrirModal(data)
+        })
+
+        function Guardar() {
+            var Usuario = {
+                Activo: $("#cboEstado").val()== 1 ? true : false,
+                Apellidos: $("#txtApellidos").val(),
+                Correo: $("#txtCorreo").val(),
+                IdUsuario: $("#txtId").val(),
+                Nombres: $("#txtNombres").val(),
+                Reestablecer: true
+            }
+            if (Usuario.IdUsuario == 0) {
+                //Agrega otro usuario y pinta la informacion
+                tabladata.row.add(Usuario).draw(false)
+            } else {
+                //Actualizar
+                //Selecciona una fila, mira la data del usuario y pinta la informacion
+                //Debido a que no hay ninguna base datos la id siempre sera cero ----- ERROR
+                tabladata.row(filaSeleccionada).data(Usuario).draw(false)
+            }
+
+            $("#exampleModal").modal("hide");
+        }
+
+    </script>
+    }
