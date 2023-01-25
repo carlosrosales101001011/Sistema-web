@@ -63,6 +63,81 @@ namespace CapaDatos
 
             return listar;
         }
+        /*En este metodo Registrar estamos devolviendo un entero, los parametros de salida son un objeto
+        de tipo usuario y un parametro de salida de tipo string que diga mensaje*/
+        public int Registrar(Usuario obj, out string Mensaje)
+        {
+            int idAutogenerado = 0; //Esto devuelve el id
+            Mensaje = string.Empty;
+            try
+            {
+                using(SqlConnection oconexion = new SqlConnection(Conexion.cn))
+                {
+                    //Llamamos al procedimiento almacenado
+                    SqlCommand cmd = new SqlCommand("SP_REGISTRARUSUARIO", oconexion);
+                    cmd.Parameters.AddWithValue("Nombre", obj.Nombres);
+                    cmd.Parameters.AddWithValue("Apellidos", obj.Apellidos);
+                    cmd.Parameters.AddWithValue("Correo", obj.Correo);
+                    cmd.Parameters.AddWithValue("Clave", obj.Clave);
+                    cmd.Parameters.AddWithValue("Activo", obj.Activo);
+                    cmd.Parameters.Add("Resultado", SqlDbType.Int).Direction = ParameterDirection.Output;
+                    cmd.Parameters.Add("Mensaje", SqlDbType.VarChar, 500).Direction = ParameterDirection.Output;
+                    //Le estamos diciendo que el sqlCommand es un procedimiento almacenado
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    //Abre la conexion
+                    oconexion.Open();
+
+                    //Ejecutamos el comando
+                    cmd.ExecuteNonQuery();
+
+                    //Aqui retornamos el parametro de salida de resultado 
+                    idAutogenerado = Convert.ToInt32(cmd.Parameters["Resultado"].Value);
+                    //Le asignamos el valor al mensaje
+                    Mensaje = cmd.Parameters["Mensaje"].Value.ToString();
+
+                }
+            }
+            catch(Exception ex)
+            {
+                idAutogenerado = 0;
+                Mensaje = ex.Message;
+            }
+            return idAutogenerado;
+        }
+        
+        public bool Editar(Usuario obj, out String Mensaje)
+        {
+            bool resultado = false;
+            Mensaje = string.Empty;
+            try
+            {
+                using(SqlConnection oconexion = new SqlConnection(Conexion.cn))
+                {
+                    SqlCommand cmd = new SqlCommand("SP_EDITARUSUARIO", oconexion);
+                    cmd.Parameters.AddWithValue("IdUsuario", obj.IdUsuario);
+                    cmd.Parameters.AddWithValue("Nombre", obj.Nombres);
+                    cmd.Parameters.AddWithValue("Apellidos", obj.Apellidos);
+                    cmd.Parameters.AddWithValue("Correo", obj.Correo);
+                    cmd.Parameters.AddWithValue("Activo", obj.Activo);
+                    cmd.Parameters.Add("Resultado", SqlDbType.Bit).Direction = ParameterDirection.Output;
+                    cmd.Parameters.Add("Mensaje", SqlDbType.VarChar, 500).Direction = ParameterDirection.Output;
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    oconexion.Open();
+
+                    cmd.ExecuteNonQuery();
+
+                    resultado = Convert.ToBoolean(cmd.Parameters["Resultado"].Value);
+                    Mensaje = cmd.Parameters["Mensaje"].Value.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                resultado = false;
+                Mensaje = ex.Message;
+            }
+            return resultado;
+        }
 
     }
 }

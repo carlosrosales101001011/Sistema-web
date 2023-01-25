@@ -16,6 +16,36 @@ namespace CapaNegocio
         {
             return objCapaDato.Listar();
         }
+        public int Registrar(Usuario obj, out string Mensaje)
+        {
+            Mensaje = string.Empty;
+
+            if (string.IsNullOrEmpty(obj.Nombres) || string.IsNullOrWhiteSpace(obj.Nombres))
+            {
+                Mensaje = "El nombre del usuario no puede ser vacio";
+            }else if(string.IsNullOrEmpty(obj.Apellidos) || string.IsNullOrWhiteSpace(obj.Apellidos))
+            {
+                Mensaje= "El apellido del usuario no puede ser vacio";
+            }
+            else if (string.IsNullOrEmpty(obj.Correo) || string.IsNullOrWhiteSpace(obj.Correo))
+            {
+                Mensaje = "El correo del usuario no puede ser vacio";
+            }
+
+            if (string.IsNullOrEmpty(Mensaje))
+            {
+                string clave = "test123";
+
+
+            return objCapaDato.Registrar(obj, out Mensaje);
+            }
+            else
+            {
+                return 0;
+            }
+
+
+        }
 
     }
 }
