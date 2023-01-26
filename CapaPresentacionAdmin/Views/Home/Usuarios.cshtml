@@ -190,27 +190,20 @@
                 contentType: "application/json; charset=UTF-8",
                 success: function (data) {
 
-                    debugger;
+                    $(".modal-body").LoadingOverlay("hide");
                     //USUARIO NUEVO
                     if (Usuario.IdUsuario == 0) {
-
                         if (data.resultado != 0) {
                             //Esta actualizando el id del nuevo usuario
                             Usuario.IdUsuario = data.resultado;
-
                             //Agrega otro usuario y pinta la informacion
                             tabladata.row.add(Usuario).draw(false)
-
-
                             $("#exampleModal").modal("hide");
                         } else {
                             console.log(data);
                             $("#msgError").text(data.mensaje);
                             $("#msgError").show();
-
                         }
-
-
 
                     }
                     //Usuario EDITADO
@@ -220,24 +213,27 @@
                             //Selecciona una fila, mira la data del usuario y pinta la informacion
                             //Debido a que no hay ninguna base datos la id siempre sera cero ----- ERROR
                             tabladata.row(filaSeleccionada).data(Usuario).draw(false);
-
                             //Nueva fila
                             filaSeleccionada = null;
-
                             $("#FormModal").modal("hide");
-
                         } else {
                             $("#msgError").text(data.mensaje);
                             $("#msgError").show();
                             }
                        }
                 },
-                error: function(error) {
-                        console.log(error)
+                error: function (error) {
+                    $(".modal-body").LoadingOverlay("hide");
+                    $("#msgError").text("Error ajax");
+                    $("#msgError").show();
                     },
-                //Mientras se esta ejecutando esta funcion se activa
+                //Mientras se esta ejecutando esta funcion se activa. Realiza algo durante la ejecucion de la url
                 beforeSend: function(){
-
+                    $(".modal-body").LoadingOverlay("show", {
+                        imageResizeFactor: 2, //La img de la imagen va a ser en dos
+                        text: "Cargando...",
+                        size: 14
+                    });
                 }
             })
 
