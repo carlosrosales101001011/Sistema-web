@@ -40,7 +40,7 @@
 </div>
 
 
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static">
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header bg-dark text-white">
@@ -51,7 +51,7 @@
             </div>
             <div class="modal-body">
                 <input id="txtId" type="hidden" value="0"/>
-                <div class="row">
+                <div class="row g-2">
 
                     <div class="col-sm-6">
                         <label for="txtNombres">Nombres</label>
@@ -75,6 +75,13 @@
 
 
                 </div>
+                <div class="row mt-2">
+                    <div class="col-12">
+                        <div id="msgError" class="alert alert-danger" role="alert">
+                            This is a warning alert—check it out!
+                        </div>
+                    </div>
+                </div>
 
             </div>
             <div class="modal-footer">
@@ -90,6 +97,7 @@
         //Tabla data contiene toda la informacion
         var tabladata;
         var filaSeleccionada;
+
         jQuery.ajax({
             url: '@Url.Action("ListarUsuarios", "Home")',
             type: "GET",
@@ -143,6 +151,8 @@
             $("#txtApellidos").val("");
             $("#txtCorreo").val("");
             $("#cboEstado").val("1");
+            $("#msgError").hide();
+
             if (json != null) {
                 $("#txtId").val(json.IdUsuario);
                 $("#txtNombres").val(json.Nombres);
@@ -170,17 +180,68 @@
                 Nombres: $("#txtNombres").val(),
                 Reestablecer: true
             }
-            if (Usuario.IdUsuario == 0) {
-                //Agrega otro usuario y pinta la informacion
-                tabladata.row.add(Usuario).draw(false)
-            } else {
-                //Actualizar
-                //Selecciona una fila, mira la data del usuario y pinta la informacion
-                //Debido a que no hay ninguna base datos la id siempre sera cero ----- ERROR
-                tabladata.row(filaSeleccionada).data(Usuario).draw(false)
-            }
 
-            $("#exampleModal").modal("hide");
+            jQuery.ajax({
+                url: '@Url.Action("GuardarUsuario", "Home")',
+                type: "POST",
+                dataType: "json",
+                //el "obj" es por que en el parametro del metodo guardarUsuario esta así
+                data: JSON.stringify({ obj: Usuario }),
+                contentType: "application/json; charset=UTF-8",
+                success: function (data) {
+
+                    debugger;
+                    //USUARIO NUEVO
+                    if (Usuario.IdUsuario == 0) {
+
+                        if (data.resultado != 0) {
+                            //Esta actualizando el id del nuevo usuario
+                            Usuario.IdUsuario = data.resultado;
+
+                            //Agrega otro usuario y pinta la informacion
+                            tabladata.row.add(Usuario).draw(false)
+
+
+                            $("#exampleModal").modal("hide");
+                        } else {
+                            console.log(data);
+                            $("#msgError").text(data.mensaje);
+                            $("#msgError").show();
+
+                        }
+
+
+
+                    }
+                    //Usuario EDITADO
+                    else {
+                        //Actualizar
+                        if (data.resultado) {
+                            //Selecciona una fila, mira la data del usuario y pinta la informacion
+                            //Debido a que no hay ninguna base datos la id siempre sera cero ----- ERROR
+                            tabladata.row(filaSeleccionada).data(Usuario).draw(false);
+
+                            //Nueva fila
+                            filaSeleccionada = null;
+
+                            $("#FormModal").modal("hide");
+
+                        } else {
+                            $("#msgError").text(data.mensaje);
+                            $("#msgError").show();
+                            }
+                       }
+                },
+                error: function(error) {
+                        console.log(error)
+                    },
+                //Mientras se esta ejecutando esta funcion se activa
+                beforeSend: function(){
+
+                }
+            })
+
+
         }
 
     </script>

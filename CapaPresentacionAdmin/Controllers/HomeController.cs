@@ -8,6 +8,7 @@ using System.Web.Mvc;
 
 namespace CapaPresentacionAdmin.Controllers
 {
+    //Nos permite comunicar con nuestra vista
     public class HomeController : Controller
     {
         public ActionResult Index()
@@ -25,7 +26,29 @@ namespace CapaPresentacionAdmin.Controllers
         {
             List<Usuario> oList = new List<Usuario>();
             oList = new CN_Usuarios().Listar();
-          return Json(new { data= oList }, JsonRequestBehavior.AllowGet);
+            return Json(new { data = oList }, JsonRequestBehavior.AllowGet);
+        }
+
+
+        [HttpPost]
+        public JsonResult GuardarUsuario(Usuario obj)
+        {
+            object resul;
+
+            string mensaje = string.Empty;
+
+            if (obj.IdUsuario == 0)
+            {
+                //Registrando un nuevo usuario
+                resul = new CN_Usuarios().Registrar(obj, out mensaje);
+            }
+            else
+            {
+                resul = new CN_Usuarios().Editar(obj, out mensaje);
+            }
+
+
+            return Json(new { resultado = resul, mensaje }, JsonRequestBehavior.AllowGet);
         }
     }
 }
