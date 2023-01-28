@@ -48,18 +48,22 @@ namespace CapaNegocio
                 mail.From = new MailAddress("carlodl2lzebe@gmail.com");
                 mail.Body = mensaje;
                 mail.IsBodyHtml = true;
-                var smtp = new SmtpClient();
+                var smtp = new SmtpClient()
                 {
-                    Credentials = new NetworkCredential("", ""),
+                    //En credenciales nos piden el correo y la contraseña que hemos generado de gmail
+                    Credentials = new NetworkCredential("carlodl2lzebe@gmail.com", "irvpcamfnjdfzchp"),
                     Host = "smtp.gmail.com",
-                    port= 587,
-                        EnableSsl = true
+                    Port= 587,
+                    EnableSsl = true
                 };
+                smtp.Send(mail);
+                resu = true;
 
             }catch(Exception ex)
             {
-
+                resu= false;
             }
+            return resu;
         }
     }
 }
