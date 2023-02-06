@@ -71,7 +71,7 @@ namespace CapaNegocio
 
         }
 
-        public bool Editar(Usuario obj, out String Mensaje)
+        public bool Editar(Usuario obj, out string Mensaje)
         {
             Mensaje = string.Empty;
 
