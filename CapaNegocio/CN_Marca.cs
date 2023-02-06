@@ -36,7 +36,7 @@ namespace CapaNegocio
         }
 
 
-        public bool Editar(Categoria obj, out string Mensaje)
+        public bool Editar(Marca obj, out string Mensaje)
         {
             Mensaje = string.Empty;
 
