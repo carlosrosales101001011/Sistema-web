@@ -31,7 +31,9 @@ namespace CapaEntidad
         public string NombreImg { get; set; }
         public bool Activo { get; set; }
 
-
+        public string PrecioTexto { get; set; }
+        //Para poner a la img un formato de base64
+        public string Base64 { get; set; }
 
 
 
