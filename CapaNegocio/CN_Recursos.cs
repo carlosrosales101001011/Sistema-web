@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
@@ -64,6 +65,25 @@ namespace CapaNegocio
                 resu= false;
             }
             return resu;
+        }
+        public static string ConvertirBase64(string ruta, out bool conversion)
+        {
+            string textoBase64 = string.Empty;
+            conversion = true;
+
+            try
+            {
+                //array de tipo byte
+                byte[] bytes = File.ReadAllBytes(ruta);
+                textoBase64 = Convert.ToBase64String(bytes);
+            }
+            catch (Exception)
+            {
+
+                conversion = false;
+            }
+            return textoBase64;
+
         }
     }
 }

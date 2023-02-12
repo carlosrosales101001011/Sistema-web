@@ -15,7 +15,7 @@
 
 <div class="card">
     <div class="card-header">
-        <i class="fas fa-users me-1"></i> Lista de Productos
+        <i class="fas fa-boxes me-1"></i> Lista de Productos
     </div>
     <div class="card-body">
         <div class="row">
@@ -26,6 +26,8 @@
         <hr />
         <table id="tabla" class="display cell-border" style="width:100%">
             <thead>
+                
+            <th>Nombre</th>
             <th>Descripcion</th>
             <th>Marca</th>
             <th>Categoria</th>
@@ -41,7 +43,7 @@
 
 
 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header bg-dark text-white">
                 <h5 class="modal-title" id="exampleModalLabel">Producto</h5>
@@ -53,18 +55,55 @@
                 <input id="txtId" type="hidden" value="0" />
                 <div class="row g-1">
 
-                    <div class="col-sm-6">
-                        <label for="txtCorreo">Descripcion</label>
-                        <input type="email" class="form-control" id="txtDescripcion" autocomplete="off">
-                    </div>
-                    <div class="col-sm-6">
-                        <label for="cboEstado">Estado</label>
-                        <select class="form-select" id="cboEstado" aria-label="Default select example">
-                            <option value="1" selected>Activo</option>
-                            <option value="0">Inactivo</option>
-                        </select>
-                    </div>
-
+                    <form id="contenedor" class="row">
+                        <div class="col-sm-3">
+                            <div class="mb-2">
+                                <img id="img_Producto" height="197" width="200" class="border rounded mx-auto d-block img-fluid" />
+                            </div>
+                            <div class="mb-2">
+                                <input class="form-control" type="file" id="fileProducto" accept="image/png, image/jpg, image/jpeg" onchange="mostrarImagen(this)" />
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="mb-3">
+                                <label class="form-label">Nombre</label>
+                                <input type="text" class="form-control" id="txtnombre" name="nombre" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Descripcion</label>
+                                <textarea type="text" class="form-control" id="txtdescripcion" name="descripcion" style="height: 125px;/*El usuario no puede manipular el textarea*/resize: none"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="mb-3">
+                                <label class="form-label">Marca</label>
+                                <select id="cboMarca" class="form-select">
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Categoria</label>
+                                <select id="cboCategoria" class="form-select">
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Precio</label>
+                                <input type="text" class="form-control" id="txtprecio" autocomplete="off" name="precio" />
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="mb-3">
+                                <label class="form-label">Stock</label>
+                                <input type="number" class="form-control" id="txtstock" autocomplete="off" name="stock" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="cboEstado">Estado</label>
+                                <select class="form-select" id="cboEstado" aria-label="Default select example">
+                                    <option value="1" selected>Activo</option>
+                                    <option value="0">Inactivo</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
 
                 </div>
 
@@ -94,6 +133,22 @@
         var tabladata;
         var filaSeleccionada;
 
+        function mostrarImagen(input) { 
+            if (input.files) {
+
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    $("#img_Producto").attr("src", e.target.result).width(200).height(197);
+                }
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+
+
+
         tabladata = $("#tabla").DataTable({
             responsive: true,
             ordering: false,
@@ -104,10 +159,11 @@
             dataType: "json"
             },
             "columns": [
-            //De "data" origen extraes el Nombre
+                //De "data" origen extraes el Nombre
+                { "data": "Nombre" },
                 { "data": "Descripcion" },
-                { "data": "DesMarca" },
-                { "data": "DesCategoria" },
+                { "data": "oMarca.Descripcion" },
+                { "data": "oCategoria.Descripcion" },
                 { "data": "Precio" },
                 { "data": "Stock"},
                 {
@@ -132,6 +188,11 @@
                 }
 
         });
+
+        
+
+
+
         function abrirModal(json) {
             $("#txtId").val(0);
             $("#txtDescripcion").val("");
