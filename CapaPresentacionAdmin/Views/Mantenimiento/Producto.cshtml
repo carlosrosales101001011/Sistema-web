@@ -71,7 +71,7 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Descripcion</label>
-                                <textarea type="text" class="form-control" id="txtdescripcion" name="descripcion" style="height: 125px;/*El usuario no puede manipular el textarea*/resize: none"></textarea>
+                                <textarea type="text" class="form-control" id="txtDescripcion" name="descripcion" style="height: 125px;/*El usuario no puede manipular el textarea*/resize: none"></textarea>
                             </div>
                         </div>
                         <div class="col-sm-3">
@@ -87,7 +87,7 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Precio</label>
-                                <input type="text" class="form-control" id="txtprecio" autocomplete="off" name="precio" />
+                                <input type="text" class="form-control" id="txtprecio" autocomplete="off" name="Precio" />
                             </div>
                         </div>
                         <div class="col-sm-3">
@@ -133,7 +133,7 @@
         var tabladata;
         var filaSeleccionada;
 
-        function mostrarImagen(input) { 
+        function mostrarImagen(input) {
             if (input.files) {
 
                 var reader = new FileReader();
@@ -189,19 +189,82 @@
 
         });
 
-        
 
 
+        //********************* COMBO BOX DE MARCA *********************/
 
+        jQuery.ajax({
+            url: `@Url.Action("ListarMarcas", "Mantenimiento")`,
+            type: "GET",
+            data: null,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data) {
+                //La data retorna la lista de marcas
+                //console.log(data, "la data");
+
+                $("<option>").attr({ "value": "0", "disabled":"true" }).text("Seleccionar").appendTo("#cboMarca")
+                //Hace un for each a la lista(data) de las marcas registradas
+                $.each(data.data, function (index, valor) {
+                    $("<option>").attr({ "value": valor.IdMarca }).text(valor.Descripcion).appendTo("#cboMarca")
+                })
+            },
+            error: function (e) {
+                console.log(e, "error");
+            }
+        });
+
+
+        //********************* COMBO BOX DE CATEGORIA *********************/
+        jQuery.ajax({
+            url: `@Url.Action("ListarCategorias", "Mantenimiento")`,
+            type: "GET",
+            data: null,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data) {
+                //La data retorna la lista de productos
+                $("<option>").attr({ "value": "0", "disabled":"true" }).text("Seleccionar").appendTo("#cboCategoria")
+                //Hace un for each a la lista(data) de las marcas registradas
+                $.each(data.data, function (index, valor) {
+                    $("<option>").attr({ "value": valor.IdCategoria }).text(valor.Descripcion).appendTo("#cboCategoria")
+                })
+            },
+            error: function (e) {
+                console.log(e, "error");
+            }
+        });
+
+
+        //********************* FUNCION ABRIR MODAL *********************/
         function abrirModal(json) {
             $("#txtId").val(0);
+            $("#img_producto").removeAttr("src");
+            $("#fileProducto").val("");
+            $("#txtnombre").val("");
             $("#txtDescripcion").val("");
+            //Seleccionar siempre la primer opcion en cbomarca
+            $("#cboMarca").val($("#cboMarca option:first").val());
+            //Seleccionar siempre la primer opcion en cbocategoria
+            $("#cboCategoria").val($("#cboCategoria option:first").val());
+
+            $("#txtprecio").val("");
+            $("#txtstock").val("");
             $("#cboEstado").val("1");
             $("#msgError").hide();
 
             if (json != null) {
                 $("#txtId").val(json.IdProducto);
+                $("#txtnombre").val(json.Nombre);
                 $("#txtDescripcion").val(json.Descripcion);
+                //Seleccionar siempre la primer opcion en cbomarca
+                $("#cboMarca").val(json.oMarca.IdMarca);
+                //Seleccionar siempre la primer opcion en cbocategoria
+                $("#cboCategoria").val(json.oCategoria.IdCategoria);
+
+                $("#txtprecio").val(json.Precio);
+                $("#txtstock").val(json.Stock);
+
                 $("#cboEstado").val(json.Activo ? "1" : "0");
             }
             $("#exampleModal").modal("show");
@@ -255,30 +318,47 @@
         })
 
         function Guardar() {
+            var ImageSelected = $('#fileProducto')[0].files[0];
             var Producto = {
-                Activo: $("#cboEstado").val()== 1 ? true : false,
                 IdProducto: $("#txtId").val(),
+                Nombre: $("#txtnombre").val(),
                 Descripcion: $("#txtDescripcion").val(),
+                oMarca: {
+                    IdMarca: $("#cboMarca option:selected").val(),
+                    Descripcion: $("#cboMarca option:selected").text(),
+                },
+                oCategoria: {
+                    IdCategoria: $("#cboCategoria option:selected").val(),
+                    Descripcion: $("#cboCategoria option:selected").text(),
+                },
+                Precio: $("#txtprecio").val(),
+                PrecioTexto: $("#txtprecio").val(),
+                Stock: $("#txtstock").val(),
+                Activo: $("#cboEstado").val()== 1 ? true : false,
                 Reestablecer: true
             }
+            var request = new FormData();
+            //Debe de ser el mismo nombre que le puse al argumento de la funcion de GuardarProducto
+            //Estoy creando, dentro de formData, un obj
+            request.append("obj", JSON.stringify(Producto));
+            //Estoy creando, dentro de formData, un archivoImage
+            request.append("archivoImage", ImageSelected);
 
             jQuery.ajax({
                 url: '@Url.Action("GuardarProducto", "Mantenimiento")',
                 type: "POST",
-                dataType: "json",
-                //el "obj" es por que en el parametro del metodo guardarUsuario esta así
-                data: JSON.stringify({ obj: Producto }),
-                contentType: "application/json; charset=UTF-8",
+                processData: false,
+                data: request,    
+                contentType: false,
                 success: function (data) {
 
                     $(".modal-body").LoadingOverlay("hide");
-                    //Producto NUEVO
+                    //Producto NUEVO    
 
-                    console.log(data);
                     if (Producto.IdProducto == 0) {
-                        if (data.resultado != 0) {
+                        if (data.idGenerado != 0) {
                             //Esta actualizando el id del nuevo Producto
-                            Producto.IdProducto = data.resultado;
+                            Producto.IdProducto = data.idGenerado;
                             //Agrega otra Producto y pinta la informacion
                             tabladata.row.add(Producto).draw(false)
                             $("#exampleModal").modal("hide");
@@ -287,12 +367,11 @@
                             $("#msgError").text(data.mensaje);
                             $("#msgError").show();
                         }
-
                     }
                     //Producto EDITADO
                     else {
                         //Actualizar
-                        if (data.resultado) {
+                        if (data.operacionExitosa) {
                             //Selecciona una fila, mira la data del usuario y pinta la informacion
                             //Debido a que no hay ninguna base datos la id siempre sera cero ----- ERROR
                             tabladata.row(filaSeleccionada).data(Producto).draw(false);

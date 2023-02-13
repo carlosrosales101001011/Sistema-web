@@ -79,12 +79,11 @@ namespace CapaDatos
                 {
                     SqlCommand cmd = new SqlCommand("sp_RegistrarProducto", oconexion);
                     cmd.Parameters.AddWithValue("Nombre", obj.Nombre);
-                    cmd.Parameters.AddWithValue("Description", obj.Descripcion);
+                    cmd.Parameters.AddWithValue("Descripcion", obj.Descripcion);
                     cmd.Parameters.AddWithValue("IdMarca", obj.oMarca.IdMarca);
                     cmd.Parameters.AddWithValue("IdCategoria", obj.oCategoria.IdCategoria);
                     cmd.Parameters.AddWithValue("Precio", obj.Precio);
                     cmd.Parameters.AddWithValue("Stock", obj.Stock);
-
                     cmd.Parameters.AddWithValue("Activo", obj.Activo);
                     cmd.Parameters.Add("Resultado", SqlDbType.Int).Direction = ParameterDirection.Output;
                     cmd.Parameters.Add("Mensaje", SqlDbType.VarChar, 500).Direction = ParameterDirection.Output;
@@ -182,7 +181,7 @@ namespace CapaDatos
                 using (SqlConnection oconexion = new SqlConnection(Conexion.cn))
                 {
                     string query = " update producto set RutaImg = @rutaImg, NombreImg = @nombreimg where IdProducto = @IdProducto ";
-                    SqlCommand cmd = new SqlCommand("sp_EliminarProducto", oconexion);
+                    SqlCommand cmd = new SqlCommand(query, oconexion);
                     cmd.Parameters.AddWithValue("IdProducto", obj.IdProducto);
                     cmd.Parameters.AddWithValue("rutaImg", obj.RutaImg);
                     cmd.Parameters.AddWithValue("nombreimg", obj.NombreImg);
