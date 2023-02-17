@@ -337,6 +337,7 @@
                 Activo: $("#cboEstado").val()== 1 ? true : false,
                 Reestablecer: true
             }
+            //FormData: Crea y envia datos en formato de formulario a traves de una solicitud http
             var request = new FormData();
             //Debe de ser el mismo nombre que le puse al argumento de la funcion de GuardarProducto
             //Estoy creando, dentro de formData, un obj
@@ -356,14 +357,15 @@
                     //Producto NUEVO    
 
                     if (Producto.IdProducto == 0) {
+                        //Si el idGenerado es diferente de 0, actualiza el id del producto al idGenerado
                         if (data.idGenerado != 0) {
                             //Esta actualizando el id del nuevo Producto
                             Producto.IdProducto = data.idGenerado;
                             //Agrega otra Producto y pinta la informacion
                             tabladata.row.add(Producto).draw(false)
                             $("#exampleModal").modal("hide");
+                        //Si la condicion no se cumple es por que hay un error en el servidor o el usuario puso algo
                         } else {
-                            console.log(data);
                             $("#msgError").text(data.mensaje);
                             $("#msgError").show();
                         }

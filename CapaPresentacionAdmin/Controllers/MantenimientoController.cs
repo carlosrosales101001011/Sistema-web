@@ -121,8 +121,11 @@ namespace CapaPresentacionAdmin.Controllers
         [HttpGet]
         public JsonResult ListarProductos()
         {
+           //Crea una lista de productos vacia
             List<Producto> oList = new List<Producto>();
+            //llama al metodo listar() de la clase cnproducto que devuelve una lista de objetos 'Producto'. La lista devuelta se le asigna a la lista vacia
             oList = new CN_Producto().Listar();
+            //Convierte la lista de objetos a un JSON, "data" es la matriz de la lista. La propiedad JsonRequestBehavior.AllowGet permite que la solicitud HTTP sea una solicitud GET
             return Json(new { data = oList }, JsonRequestBehavior.AllowGet);
         }
 
@@ -225,6 +228,7 @@ namespace CapaPresentacionAdmin.Controllers
                 conversion,
                 textoBase64,
                 extension = Path.GetExtension(oProducto.NombreImg)
+                //Confundido con AllowGet
             },JsonRequestBehavior.AllowGet);
         }
 

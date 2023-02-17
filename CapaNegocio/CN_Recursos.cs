@@ -83,7 +83,6 @@ namespace CapaNegocio
                 conversion = false;
             }
             return textoBase64;
-
         }
     }
 }

@@ -38,7 +38,7 @@ namespace CapaDatos
                     cmd.CommandType = CommandType.Text;
 
                     oconexion.Open();
-
+                    //No entiendo que es using()
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
                         while (dr.Read())
