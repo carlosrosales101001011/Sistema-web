@@ -4,8 +4,6 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Producto</h2>
-
 
 <ol class="breadcrumb mb-4 mt-4">
     <li class="breadcrumb-item"><a href="index.html">Mantenimiento</a></li>
@@ -15,26 +13,30 @@
 
 <div class="card">
     <div class="card-header">
+
         <i class="fas fa-boxes me-1"></i> Lista de Productos
+
     </div>
     <div class="card-body">
         <div class="row">
             <div class="col-12">
-                <button type="button" class="btn btn-success" onclick="abrirModal()">Crear Nueva Producto</button>
+                <button type="button" class="btn btn-success" onclick="abrirModal(null)">Crear Nueva Producto</button>
             </div>
         </div>
         <hr />
+
         <table id="tabla" class="display cell-border" style="width:100%">
             <thead>
-                
-            <th>Nombre</th>
-            <th>Descripcion</th>
-            <th>Marca</th>
-            <th>Categoria</th>
-            <th>Precio</th>
-            <th>Stock</th>
-            <th>Estado</th>
-            <th></th>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Descripcion</th>
+                    <th>Marca</th>
+                    <th>Categoria</th>
+                    <th>Precio</th>
+                    <th>Stock</th>
+                    <th>Estado</th>
+                    <th></th>
+                </tr>
             <tbody>
             </tbody>
         </table>
@@ -42,28 +44,31 @@
 </div>
 
 
+
+
+
 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header bg-dark text-white">
                 <h5 class="modal-title" id="exampleModalLabel">Producto</h5>
-                <button type="button" class="close bg-dark" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="close bg-dark" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <input id="txtId" type="hidden" value="0" />
                 <div class="row g-1">
+                            <input id="txtId" type="text" value="0" />
 
                     <form id="contenedor" class="row">
+
                         <div class="col-sm-3">
                             <div class="mb-2">
-                                <img id="img_Producto" height="197" width="200" class="border rounded mx-auto d-block img-fluid" />
+                                <img id="img_producto" height="197" width="200" class="border rounded mx-auto d-block img-fluid" />
                             </div>
                             <div class="mb-2">
                                 <input class="form-control" type="file" id="fileProducto" accept="image/png, image/jpg, image/jpeg" onchange="mostrarImagen(this)" />
                             </div>
                         </div>
+
                         <div class="col-sm-3">
                             <div class="mb-3">
                                 <label class="form-label">Nombre</label>
@@ -74,6 +79,8 @@
                                 <textarea type="text" class="form-control" id="txtDescripcion" name="descripcion" style="height: 125px;/*El usuario no puede manipular el textarea*/resize: none"></textarea>
                             </div>
                         </div>
+
+
                         <div class="col-sm-3">
                             <div class="mb-3">
                                 <label class="form-label">Marca</label>
@@ -90,6 +97,8 @@
                                 <input type="text" class="form-control" id="txtprecio" autocomplete="off" name="Precio" />
                             </div>
                         </div>
+
+
                         <div class="col-sm-3">
                             <div class="mb-3">
                                 <label class="form-label">Stock</label>
@@ -103,6 +112,7 @@
                                 </select>
                             </div>
                         </div>
+
                     </form>
 
                 </div>
@@ -110,15 +120,17 @@
                 <!--Mensaje alerta-->
                 <div class="row mt-2">
                     <div class="col-12">
+
                         <div id="msgError" class="alert alert-danger" role="alert">
-                            This is a warning alert—check it out!
                         </div>
+
                     </div>
+
                 </div>
 
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 <button type="button" class="btn btn-primary" onclick="Guardar()">Guardar</button>
             </div>
         </div>
@@ -139,7 +151,7 @@
                 var reader = new FileReader();
 
                 reader.onload = function (e) {
-                    $("#img_Producto").attr("src", e.target.result).width(200).height(197);
+                    $("#img_producto").attr("src", e.target.result).width(200).height(197);
                 }
 
                 reader.readAsDataURL(input.files[0]);
@@ -236,8 +248,47 @@
         });
 
 
+
+
+        //********************* VALIDAR EL FORMATO *********************/
+        jQuery.validator.addMethod("preciodecimal", function (value, e) {
+            return this.optional(e) || /^\d{0,4}(\.\d{0,2})?$/i.test(value)
+        }, "El formato correcto del precio es ##.##");
+
+        $("#contenedor").validate({
+            rules: {
+                //En la caja de texto tiene el atributo name
+                nombre: {
+                    required: true,
+                },
+                descripcion: {
+                    required: true
+                },
+                Precio: {
+                    required: true,
+                    preciodecimal: true
+                },
+                stock: {
+                    required: true,
+                    number: true
+                }
+            },
+            messages: {
+                nombre: "- El campo nombre es obligatorio",
+                descripcion: "- El campo descripcion es obligatorio",
+                //Dentro de los mensajes de precio vamos a aplicar la logica de preciodecimal
+                Precio: { required: "- El campo precio es obligatorio", preciodecimal: "- El formato correcto del precio es ##.##" },
+                stock: { required: "- El campo stock es obligatorio", number: "- Debe ingresar solo numeros en el stock"}
+            },
+            errorElement: "div",
+            errorLabelContainer: ".alert-danger"
+        })
+
+
+
         //********************* FUNCION ABRIR MODAL *********************/
         function abrirModal(json) {
+
             $("#txtId").val(0);
             $("#img_producto").removeAttr("src");
             $("#fileProducto").val("");
@@ -266,16 +317,45 @@
                 $("#txtstock").val(json.Stock);
 
                 $("#cboEstado").val(json.Activo ? "1" : "0");
+
+                 jQuery.ajax({
+                     url: `@Url.Action("ImagenProducto", "Mantenimiento")`,
+                     type: "POST",
+                     data: JSON.stringify({ id: json.IdProducto }),
+                     dataType: "json",
+                     contentType: "application/json; charset=utf-8",
+                     success: function (data) {
+                         console.log(data);
+                         $("#img_producto").LoadingOverlay("hide");
+                         if (data.conversion) {
+
+                             $("#img_producto").attr({ "src": "data:image/" + data.extension + ";base64," + data.textoBase64 });
+                         }
+                     },
+                     error: function (e) {
+                         $("#img_producto").LoadingOverlay("hide");
+
+                         $("#msgError").show();
+                         $("#msgError").text("Error al mostrar imagen");
+                     },
+                     beforeSend: function () {
+                         $("#img_producto").LoadingOverlay("show");
+                     }
+                 });
+
+
             }
             $("#exampleModal").modal("show");
         }
         //Cada ves que haga un click en el boton btn-editar que esta en el tbody y que esta en la #tabla, vas a hacer esto
         $("#tabla tbody").on("click", ".btn-edit", function myfunction() {
             //this es para obtener la parte inicial del componente
-            filaSeleccionada = $(this).closest("tr")
+            filaSeleccionada = $(this).closest("tr");
             var data = tabladata.row(filaSeleccionada).data();
+            console.log(data);
             abrirModal(data)
         })
+
 
 
         //Cada ves que haga un click en el boton btn-delete que esta en el tbody y que esta en la #tabla, vas a hacer esto
@@ -318,6 +398,13 @@
         })
 
         function Guardar() {
+
+
+            //En caso de que las reglas del formulario no se cumplieron no retorna nada, se queda ahi
+            if (!$("#contenedor").valid()) {
+                return;
+            }
+
             var ImageSelected = $('#fileProducto')[0].files[0];
             var Producto = {
                 IdProducto: $("#txtId").val(),
@@ -348,13 +435,13 @@
             jQuery.ajax({
                 url: '@Url.Action("GuardarProducto", "Mantenimiento")',
                 type: "POST",
+                data: request,
                 processData: false,
-                data: request,    
                 contentType: false,
                 success: function (data) {
-
+                    
                     $(".modal-body").LoadingOverlay("hide");
-                    //Producto NUEVO    
+                    //Producto NUEVO
 
                     if (Producto.IdProducto == 0) {
                         //Si el idGenerado es diferente de 0, actualiza el id del producto al idGenerado
@@ -379,7 +466,7 @@
                             tabladata.row(filaSeleccionada).data(Producto).draw(false);
                             //Nueva fila
                             filaSeleccionada = null;
-                            $("#FormModal").modal("hide");
+                            $("#exampleModal").modal("hide");
                         } else {
                             $("#msgError").text(data.mensaje);
                             $("#msgError").show();
@@ -387,8 +474,9 @@
                        }
                 },
                 error: function (error) {
+                    console.log(error)
                     $(".modal-body").LoadingOverlay("hide");
-                    $("#msgError").text("Error ajax");
+                    $("#msgError").text("Error ajax" + error);
                     $("#msgError").show();
                     },
                 //Mientras se esta ejecutando esta funcion se activa. Realiza algo durante la ejecucion de la url
