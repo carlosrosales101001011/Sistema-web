@@ -1,4 +1,4 @@
 Aca les dejo algunas imagenes del proyecto avanzado
 
 
-![Esta image es del panel de usuarios](./CapaPresentacionAdmin/ListaUsuarios.png)
+![Esta image es del panel de usuarios](./CapaPresentacionAdmin/Imagenes/ListaUsuarios.png)
