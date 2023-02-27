@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Services.Description;
 
 namespace CapaPresentacionAdmin.Controllers
 {
@@ -60,6 +61,13 @@ namespace CapaPresentacionAdmin.Controllers
             resul = new CN_Usuarios().Eliminar(id, out mensaje);
 
             return Json(new { resultado = resul, mensaje }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        public JsonResult VistaDashBoard()
+        {
+            Dashboard objeto = new CN_Reporte().VerDashBoard();
+            return Json(new { resultado = objeto}, JsonRequestBehavior.AllowGet);
         }
     }
 }
